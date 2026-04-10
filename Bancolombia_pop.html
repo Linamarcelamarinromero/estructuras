@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Organigramas Fiduciarias</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --banc-dark: #0a1628;
+    --banc-mid: #112240;
+    --banc-accent: #e8b84b;
+    --banc-accent2: #f5d27a;
+    --banc-line: #1e3a5f;
+    --banc-text: #cfd8e8;
+    --banc-white: #f0f4fb;
+
+    --pop-dark: #1a0a08;
+    --pop-mid: #2c1206;
+    --pop-accent: #e84b2a;
+    --pop-accent2: #f5855a;
+    --pop-line: #5f1e0e;
+    --pop-text: #e8cfc9;
+    --pop-white: #fff5f2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #07111f;
+    font-family: 'DM Sans', sans-serif;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .main-header {
+    text-align: center;
+    padding: 52px 24px 32px;
+    background: linear-gradient(180deg, #000 0%, #07111f 100%);
+    border-bottom: 1px solid #1e3a5f44;
+  }
+  .main-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #f0f4fb;
+  }
+  .main-header h1 span.gold { color: var(--banc-accent); }
+  .main-header h1 span.red  { color: var(--pop-accent); }
+  .main-header p {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: #7a9abb;
+    font-weight: 300;
+    letter-spacing: 0.4px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 36px auto 0;
+    max-width: 540px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1e3a5f;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.35s ease;
+    letter-spacing: 0.3px;
+  }
+  .tab-btn.banc {
+    background: #112240;
+    color: #7a9abb;
+  }
+  .tab-btn.banc.active {
+    background: var(--banc-accent);
+    color: var(--banc-dark);
+  }
+  .tab-btn.pop {
+    background: #1a0a08;
+    color: #a07060;
+  }
+  .tab-btn.pop.active {
+    background: var(--pop-accent);
+    color: #fff;
+  }
+
+  /* PANELS */
+  .panel { display: none; padding: 48px 16px 80px; max-width: 1100px; margin: 0 auto; }
+  .panel.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+  /* SECTION TITLE */
+  .section-label {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .section-label h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .section-label p {
+    font-size: 0.83rem;
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── ORG CHART LAYOUT ─── */
+  .org {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  /* CONNECTOR LINES */
+  .v-line {
+    width: 2px;
+    height: 28px;
+    margin: 0 auto;
+  }
+
+  .h-group {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Horizontal bar above a row of boxes */
+  .h-bar-wrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+  }
+  .h-bar {
+    height: 2px;
+    position: absolute;
+    top: 0;
+  }
+
+  /* Each column in a group */
+  .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 130px;
+    max-width: 190px;
+  }
+
+  /* NODE CARDS */
+  .node {
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    width: 100%;
+    max-width: 190px;
+  }
+  .node:hover { transform: translateY(-3px); }
+  .node .node-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.2px;
+  }
+  .node .node-sub {
+    font-size: 0.68rem;
+    font-weight: 300;
+    margin-top: 4px;
+    opacity: 0.75;
+    line-height: 1.3;
+  }
+
+  /* SIZES */
+  .node.top    { padding: 18px 20px; max-width: 220px; }
+  .node.mid    { padding: 14px 16px; max-width: 175px; }
+  .node.small  { padding: 10px 12px; max-width: 155px; font-size: 0.72rem; }
+
+  /* TOOLTIP */
+  .tooltip-box {
+    position: fixed;
+    background: #0d1f33;
+    border: 1px solid #2a4a6a;
+    border-radius: 10px;
+    padding: 14px 18px;
+    max-width: 280px;
+    font-size: 0.8rem;
+    color: #cfd8e8;
+    line-height: 1.55;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .tooltip-box.pop-tip {
+    background: #1a0a08;
+    border-color: #5f1e0e;
+    color: #e8cfc9;
+  }
+  .tooltip-box.visible { opacity: 1; }
+  .tooltip-box strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 52px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 400;
+  }
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* FOOTER NOTE */
+  .footnote {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.75rem;
+    color: #4a6a8a;
+    font-weight: 300;
+    line-height: 1.7;
+    border-top: 1px solid #1e3a5f44;
+    padding-top: 24px;
+  }
+
+  /* ========= BANCOLOMBIA THEME ========= */
+  .banc-top    { background: linear-gradient(135deg,#e8b84b,#c9962a); color:#0a1628; }
+  .banc-junta  { background: linear-gradient(135deg,#1a3a6a,#112240); color:#f0f4fb; border: 1.5px solid #2a5a9a; }
+  .banc-pres   { background: linear-gradient(135deg,#1e4080,#152f60); color:#f0f4fb; border: 1.5px solid #3a6ab0; }
+  .banc-vp     { background: linear-gradient(135deg,#0f2a50,#0a1e3a); color:#cfd8e8; border: 1px solid #1e3a5f; }
+  .banc-ger    { background: linear-gradient(135deg,#091828,#060f1a); color:#9ab5cc; border: 1px solid #142233; }
+  .banc-audit  { background: linear-gradient(135deg,#2a1a6a,#1a0a4a); color:#ccc8f0; border: 1.5px dashed #4a3a9a; }
+  .banc-comite { background: linear-gradient(135deg,#1a3a2a,#0a1e14); color:#a0d0b0; border: 1.5px dashed #2a6a4a; }
+
+  .banc-vline { background: linear-gradient(180deg,#2a5a9a,#1e3a5f); }
+  .banc-hbar  { background: linear-gradient(90deg,#1e3a5f,#2a5a9a,#1e3a5f); }
+
+  /* ========= POPULAR THEME ========= */
+  .pop-top    { background: linear-gradient(135deg,#e84b2a,#c02a10); color:#fff5f2; }
+  .pop-junta  { background: linear-gradient(135deg,#3a1206,#2c1206); color:#f5d0c5; border: 1.5px solid #7a2a1a; }
+  .pop-pres   { background: linear-gradient(135deg,#501c10,#3a1208); color:#f5d0c5; border: 1.5px solid #9a3a22; }
+  .pop-vp     { background: linear-gradient(135deg,#2c1006,#1e0a04); color:#e8b8a8; border: 1px solid #5f1e0e; }
+  .pop-ger    { background: linear-gradient(135deg,#180804,#100502); color:#c89888; border: 1px solid #3a1208; }
+  .pop-audit  { background: linear-gradient(135deg,#2a0a2a,#1a041a); color:#d8b8d8; border: 1.5px dashed #6a2a6a; }
+  .pop-comite { background: linear-gradient(135deg,#0a1a2a,#040e1a); color:#a0b8d0; border: 1.5px dashed #1a4a6a; }
+
+  .pop-vline { background: linear-gradient(180deg,#9a3a22,#5f1e0e); }
+  .pop-hbar  { background: linear-gradient(90deg,#5f1e0e,#9a3a22,#5f1e0e); }
+
+  @media(max-width:700px) {
+    .h-group { flex-wrap: wrap; gap: 8px; }
+    .col { min-width: 100px; max-width: 140px; }
+    .node { max-width: 140px; }
+    .node .node-title { font-size: 0.68rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="main-header">
+  <h1>Organigramas Fiduciarias<br/><span class="gold">Bancolombia</span> &amp; <span class="red">Popular</span></h1>
+  <p>Estructuras organizacionales basadas en informacion oficial publica | Superintendencia Financiera de Colombia</p>
+</div>
+
+<div style="display:flex;justify-content:center;padding:28px 16px 0;">
+  <div class="tabs">
+    <button class="tab-btn banc active" onclick="switchTab('banc')">Fiduciaria Bancolombia</button>
+    <button class="tab-btn pop"  onclick="switchTab('pop')">Fiduciaria Popular</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--                BANCOLOMBIA PANEL                  -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-banc">
+  <div class="section-label">
+    <h2 style="color:#e8b84b;">Fiduciaria Bancolombia S.A.</h2>
+    <p style="color:#7a9abb;">Filial del Grupo Bancolombia &mdash; Vigilada por la Superintendencia Financiera de Colombia</p>
+  </div>
+
+  <div class="org" id="org-banc">
+
+    <!-- ASAMBLEA -->
+    <div class="node top banc-top"
+         data-tip="Maximo organo social de la compania. Integrada por los accionistas del Grupo Bancolombia. Aprueba estados financieros, elegir miembros de Junta Directiva y define distribucion de utilidades."
+         style="max-width:260px;">
+      <div class="node-title">ASAMBLEA GENERAL DE ACCIONISTAS</div>
+      <div class="node-sub">Maximo organo social</div>
+    </div>
+
+    <div class="v-line banc-vline"></div>
+
+    <!-- NIVEL 1: JUNTA + AUDITORIA + COMITES -->
+    <div class="h-group" style="align-items:flex-start; gap:12px; width:100%; max-width:960px;">
+      <!-- Comites de Junta (izq) -->
+      <div class="col" style="max-width:170px; padding-top:20px;">
+        <div class="node small banc-comite"
+             data-tip="Comite de Auditoria: Supervisa el control interno y la revelacion de informacion financiera. Comite de Riesgos: Aprueba politicas de administracion de riesgos. Comite de Gobierno Corporativo y Sostenibilidad: Vela por las practicas de buen gobierno."
+             style="max-width:160px;">
+          <div class="node-title">COMITES DE JUNTA</div>
+          <div class="node-sub">Auditoria / Riesgos / Gobierno Corporativo / Sucesion</div>
+        </div>
+      </div>
+
+      <!-- Junta Directiva (centro) -->
+      <div class="col" style="flex:2;">
+        <div class="node top banc-junta"
+             data-tip="Organo de administracion elegido por la Asamblea. Compuesta por miembros principales e independientes. Define la estrategia corporativa, aprueba politicas y supervisa la gestion de la alta direccion de Fiduciaria Bancolombia."
+             style="max-width:260px;">
+          <div class="node-title">JUNTA DIRECTIVA</div>
+          <div class="node-sub">Miembros Principales e Independientes</div>
+        </div>
+      </div>
+
+      <!-- Auditoria Interna (der) -->
+      <div class="col" style="max-width:170px; padding-top:20px;">
+        <div class="node small banc-audit"
+             data-tip="Dependencia con reporte directo a la Junta Directiva. Realiza evaluaciones independientes de los sistemas de control interno, gestion de riesgos y cumplimiento normativo. Garantiza la integridad de las operaciones."
+             style="max-width:160px;">
+          <div class="node-title">AUDITORIA INTERNA</div>
+          <div class="node-sub">Linea directa a Junta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v-line banc-vline" style="height:24px;"></div>
+
+    <!-- PRESIDENCIA -->
+    <div class="node top banc-pres"
+         data-tip="Lidera la administracion de Fiduciaria Bancolombia. Ejecuta la estrategia aprobada por la Junta Directiva. Coordina las vicepresidencias funcionales. Reporta a la Junta Directiva y al Grupo Bancolombia."
+         style="max-width:240px;">
+      <div class="node-title">PRESIDENCIA</div>
+      <div class="node-sub">Presidente Ejecutivo</div>
+    </div>
+
+    <div class="v-line banc-vline" style="height:24px;"></div>
+
+    <!-- VICEPRESIDENCIAS -->
+    <div style="position:relative; width:100%; max-width:1000px; margin:0 auto;">
+      <div class="v-line banc-vline" style="height:2px; width:75%; margin:0 auto;"></div>
+      <div class="h-group" style="gap:8px; flex-wrap:wrap; justify-content:center;">
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Responsable de los productos fiduciarios: encargos fiduciarios, fideicomisos de administracion, garantia e inversion. Gestiona la red de clientes corporativos, empresas e instituciones. Desarrolla nuevos negocios fiduciarios.">
+            <div class="node-title">VP NEGOCIOS FIDUCIARIOS</div>
+            <div class="node-sub">Fideicomisos / Encargos</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Administra los Fondos de Inversion Colectiva (FIC) de Fiduciaria Bancolombia. Define la politica de inversion y asignacion de activos. Supervisa los portafolios y cumple con la normativa de la SFC sobre gestion de inversiones.">
+            <div class="node-title">VP GESTION DE INVERSIONES</div>
+            <div class="node-sub">Fondos Colectivos / Portafolios</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Identifica, mide, controla y monitorea los riesgos operativos, de mercado, de credito y de liquidez. Vela por el cumplimiento de los limites de exposicion aprobados y reporta al Comite de Riesgos de la Junta.">
+            <div class="node-title">VP RIESGOS</div>
+            <div class="node-sub">Mercado / Credito / Operacional</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Garantiza el cumplimiento de las normas legales, regulatorias y del SARLAFT (prevencion de lavado de activos). Gestiona los asuntos legales y contractuales de la fiduciaria. Atiende los requerimientos de la Superintendencia Financiera.">
+            <div class="node-title">VP LEGAL Y CUMPLIMIENTO</div>
+            <div class="node-sub">SARLAFT / Regulatorio</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Dirige los procesos operativos de liquidacion, custodia y administracion de valores. Gestiona la tecnologia de la informacion y los sistemas core fiduciarios. Garantiza la continuidad operativa y la eficiencia de los procesos.">
+            <div class="node-title">VP OPERACIONES Y TECNOLOGIA</div>
+            <div class="node-sub">Back Office / TI / Custodia</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line banc-vline" style="height:22px;"></div>
+          <div class="node mid banc-vp"
+               data-tip="Gestiona la contabilidad, presupuesto, estados financieros y relacion con inversionistas. Controla los indicadores financieros de la fiduciaria. Prepara los reportes para la Superintendencia Financiera y el Grupo Bancolombia.">
+            <div class="node-title">VP FINANCIERA</div>
+            <div class="node-sub">Contabilidad / Presupuesto</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+
+    <!-- GERENCIAS -->
+    <div class="h-group" style="gap:8px; flex-wrap:wrap; justify-content:center; max-width:900px; margin:0 auto;">
+      <div class="col">
+        <div class="v-line banc-vline" style="height:18px;"></div>
+        <div class="node small banc-ger" data-tip="Gestiona las relaciones con clientes de alto patrimonio. Ofrece soluciones personalizadas de gestion patrimonial y planeacion sucesoral.">
+          <div class="node-title">Gerencia Wealth Management</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line banc-vline" style="height:18px;"></div>
+        <div class="node small banc-ger" data-tip="Administra los fideicomisos de infraestructura, inmobiliarios y de garantia para proyectos de gran escala.">
+          <div class="node-title">Gerencia Fideicomisos Especiales</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line banc-vline" style="height:18px;"></div>
+        <div class="node small banc-ger" data-tip="Diseña, lanza y gestiona los Fondos de Inversion Colectiva abiertos y cerrados bajo la supervision de la SFC.">
+          <div class="node-title">Gerencia Fondos de Inversion</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line banc-vline" style="height:18px;"></div>
+        <div class="node small banc-ger" data-tip="Responsable de la gestion del talento humano, cultura organizacional y bienestar de los colaboradores de la fiduciaria.">
+          <div class="node-title">Gerencia Recursos Humanos</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line banc-vline" style="height:18px;"></div>
+        <div class="node small banc-ger" data-tip="Implementa los sistemas tecnologicos que soportan la operacion fiduciaria, incluyendo plataformas digitales de atencion al cliente.">
+          <div class="node-title">Gerencia IT Core</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /org-banc -->
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#e8b84b;"></div><span style="color:#7a9abb;">Asamblea / Maximo Organo</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1a3a6a;"></div><span style="color:#7a9abb;">Junta Directiva</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1e4080;"></div><span style="color:#7a9abb;">Presidencia</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0f2a50;"></div><span style="color:#7a9abb;">Vicepresidencias</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#060f1a;"></div><span style="color:#7a9abb;">Gerencias</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2a1a6a; border:1px dashed #4a3a9a;"></div><span style="color:#7a9abb;">Auditoria / Comites (linea punteada)</span></div>
+  </div>
+
+  <div class="footnote">
+    Fuente: Informe Gobierno Corporativo Grupo Bancolombia &mdash; Superintendencia Financiera de Colombia<br/>
+    La estructura puede variar; consultar el sitio oficial de Fiduciaria Bancolombia para informacion actualizada.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════ -->
+<!--                POPULAR PANEL                      -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="panel" id="panel-pop">
+  <div class="section-label">
+    <h2 style="color:#e84b2a;">Fiduciaria Popular S.A.</h2>
+    <p style="color:#a07060;">Filial del Banco Popular &mdash; Vigilada por la Superintendencia Financiera de Colombia</p>
+  </div>
+
+  <div class="org" id="org-pop">
+
+    <!-- ASAMBLEA -->
+    <div class="node top pop-top"
+         data-pop-tip="Maximo organo social de Fiduciaria Popular S.A. Integrada por los accionistas, principalmente el Banco Popular y el Grupo Aval. Aprueba los estados financieros y elige a los miembros de la Junta Directiva."
+         style="max-width:260px;">
+      <div class="node-title">ASAMBLEA GENERAL DE ACCIONISTAS</div>
+      <div class="node-sub">Maximo organo social &mdash; Grupo Aval</div>
+    </div>
+
+    <div class="v-line pop-vline"></div>
+
+    <!-- NIVEL 1 -->
+    <div class="h-group" style="align-items:flex-start; gap:12px; width:100%; max-width:960px;">
+      <!-- Comites (izq) -->
+      <div class="col" style="max-width:170px; padding-top:20px;">
+        <div class="node small pop-comite"
+             data-pop-tip="Comite de Auditoria: Revisa la eficiencia del control interno. Comite de Riesgos: Aprueba politicas de gestion de riesgos. Comite de Nombramiento y Retribucion: Supervisa la designacion de directivos. Todos reportan a la Junta Directiva."
+             style="max-width:160px;">
+          <div class="node-title">COMITES DE JUNTA</div>
+          <div class="node-sub">Auditoria / Riesgos / Nombramiento</div>
+        </div>
+      </div>
+
+      <!-- Junta Directiva -->
+      <div class="col" style="flex:2;">
+        <div class="node top pop-junta"
+             data-pop-tip="Organo de administracion elegido por la Asamblea de Accionistas. Define la estrategia y supervisa la gestion de la alta gerencia. Compuesta por miembros vinculados al Banco Popular y al Grupo Aval, asi como miembros independientes."
+             style="max-width:260px;">
+          <div class="node-title">JUNTA DIRECTIVA</div>
+          <div class="node-sub">Miembros Principales e Independientes</div>
+        </div>
+      </div>
+
+      <!-- Auditoria Interna -->
+      <div class="col" style="max-width:170px; padding-top:20px;">
+        <div class="node small pop-audit"
+             data-pop-tip="Dependencia independiente con reporte directo a la Junta Directiva. Evalua los controles internos y la gestion de riesgos. Vela por el cumplimiento de las politicas y normas aplicables a la actividad fiduciaria."
+             style="max-width:160px;">
+          <div class="node-title">AUDITORIA INTERNA</div>
+          <div class="node-sub">Linea directa a Junta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="v-line pop-vline" style="height:24px;"></div>
+
+    <!-- PRESIDENCIA -->
+    <div class="node top pop-pres"
+         data-pop-tip="Maximo ejecutivo de Fiduciaria Popular S.A. Responsable de la direccion estrategica y operativa. Coordina las areas funcionales y reporta a la Junta Directiva. Representa a la fiduciaria ante la Superintendencia Financiera y entes de control."
+         style="max-width:240px;">
+      <div class="node-title">PRESIDENCIA</div>
+      <div class="node-sub">Presidente Ejecutivo</div>
+    </div>
+
+    <div class="v-line pop-vline" style="height:24px;"></div>
+
+    <!-- SECRETARIA GENERAL -->
+    <div class="node mid pop-vp"
+         data-pop-tip="Apoya a la Junta Directiva y a la Presidencia en la organizacion de reuniones, actas y documentos societarios. Gestiona los asuntos legales corporativos de la fiduciaria."
+         style="max-width:220px;">
+      <div class="node-title">SECRETARIA GENERAL</div>
+      <div class="node-sub">Asuntos Societarios y Legales</div>
+    </div>
+
+    <div class="v-line pop-vline" style="height:24px;"></div>
+
+    <!-- VICEPRESIDENCIAS -->
+    <div style="position:relative; width:100%; max-width:1000px; margin:0 auto;">
+      <div class="h-group" style="gap:8px; flex-wrap:wrap; justify-content:center;">
+
+        <div class="col">
+          <div class="v-line pop-vline" style="height:22px;"></div>
+          <div class="node mid pop-vp"
+               data-pop-tip="Administra los negocios fiduciarios: fideicomisos de administracion, garantia, inversiones y encargos fiduciarios. Gestiona la relacion con clientes corporativos, sector publico y personas naturales de alto patrimonio.">
+            <div class="node-title">VP NEGOCIOS FIDUCIARIOS</div>
+            <div class="node-sub">Fideicomisos / Encargos / Clientes</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line pop-vline" style="height:22px;"></div>
+          <div class="node mid pop-vp"
+               data-pop-tip="Gestiona los Fondos de Inversion Colectiva (FIC) ofrecidos por Fiduciaria Popular. Define la politica de inversiones y los portafolios. Realiza el seguimiento al desempeno de los fondos y reporta a los inversionistas.">
+            <div class="node-title">VP INVERSIONES Y FONDOS</div>
+            <div class="node-sub">FIC / Portafolios / Estrategia</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line pop-vline" style="height:22px;"></div>
+          <div class="node mid pop-vp"
+               data-pop-tip="Identifica y gestiona los riesgos de mercado, credito, liquidez y operacional. Administra el SARLAFT y asegura el cumplimiento de las normas anti-lavado. Reporta a la Junta Directiva y al Comite de Riesgos.">
+            <div class="node-title">VP RIESGOS Y CUMPLIMIENTO</div>
+            <div class="node-sub">SARLAFT / Mercado / Operacional</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line pop-vline" style="height:22px;"></div>
+          <div class="node mid pop-vp"
+               data-pop-tip="Garantiza la ejecucion eficiente de los procesos de liquidacion, custodia, contabilidad de fondos y administracion de activos. Lidera la gestion tecnologica y los sistemas de informacion que soportan la operacion fiduciaria.">
+            <div class="node-title">VP OPERACIONES</div>
+            <div class="node-sub">Back Office / Liquidacion / Custodia</div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="v-line pop-vline" style="height:22px;"></div>
+          <div class="node mid pop-vp"
+               data-pop-tip="Responsable de la gestion financiera, contabilidad, presupuesto y relacion con inversionistas de la fiduciaria. Elabora los estados financieros y los reportes reglamentarios para la Superintendencia Financiera de Colombia.">
+            <div class="node-title">VP FINANCIERA Y CONTABLE</div>
+            <div class="node-sub">Finanzas / Contabilidad / Reportes</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="height:32px;"></div>
+
+    <!-- GERENCIAS -->
+    <div class="h-group" style="gap:8px; flex-wrap:wrap; justify-content:center; max-width:900px; margin:0 auto;">
+      <div class="col">
+        <div class="v-line pop-vline" style="height:18px;"></div>
+        <div class="node small pop-ger" data-pop-tip="Atiende los negocios fiduciarios del sector publico, incluyendo entes territoriales, entidades estatales y proyectos de obra publica administrados en fideicomiso.">
+          <div class="node-title">Gerencia Sector Publico</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line pop-vline" style="height:18px;"></div>
+        <div class="node small pop-ger" data-pop-tip="Gestiona los fideicomisos inmobiliarios, de infraestructura y proyectos de construccion administrados por la fiduciaria para clientes corporativos.">
+          <div class="node-title">Gerencia Fiducia Inmobiliaria</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line pop-vline" style="height:18px;"></div>
+        <div class="node small pop-ger" data-pop-tip="Dirige las soluciones de planeacion patrimonial, sucesoral y de gestion de riqueza para personas naturales y familias de alto patrimonio.">
+          <div class="node-title">Gerencia Patrimonio y Sucesion</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line pop-vline" style="height:18px;"></div>
+        <div class="node small pop-ger" data-pop-tip="Implementa y administra las plataformas tecnologicas transaccionales y los canales digitales de atencion a clientes de Fiduciaria Popular.">
+          <div class="node-title">Gerencia Tecnologia</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="v-line pop-vline" style="height:18px;"></div>
+        <div class="node small pop-ger" data-pop-tip="Gestiona el talento humano, la cultura organizacional, los programas de capacitacion y el bienestar de los colaboradores de la fiduciaria.">
+          <div class="node-title">Gerencia Talento Humano</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /org-pop -->
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#e84b2a;"></div><span style="color:#a07060;">Asamblea / Maximo Organo</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3a1206;"></div><span style="color:#a07060;">Junta Directiva</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#501c10;"></div><span style="color:#a07060;">Presidencia</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2c1006;"></div><span style="color:#a07060;">Vicepresidencias</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#100502;"></div><span style="color:#a07060;">Gerencias</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2a0a2a; border:1px dashed #6a2a6a;"></div><span style="color:#a07060;">Auditoria / Comites (linea punteada)</span></div>
+  </div>
+
+  <div class="footnote" style="border-top-color:#5f1e0e44; color:#5a3a2a;">
+    Fuente: Superintendencia Financiera de Colombia &mdash; Banco Popular / Grupo Aval<br/>
+    La estructura puede variar; consultar el sitio oficial de Fiduciaria Popular para informacion actualizada.
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip-box" id="tooltip"></div>
+
+<script>
+  // TAB SWITCHING
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    document.querySelector('.tab-btn.' + tab).classList.add('active');
+  }
+
+  // TOOLTIP
+  const tip = document.getElementById('tooltip');
+
+  function showTip(e, text, isPop) {
+    tip.innerHTML = text;
+    tip.className = 'tooltip-box' + (isPop ? ' pop-tip' : '') + ' visible';
+    moveTip(e);
+  }
+
+  function moveTip(e) {
+    let x = e.clientX + 18;
+    let y = e.clientY + 18;
+    const tw = 290;
+    if (x + tw > window.innerWidth) x = e.clientX - tw - 10;
+    if (y + 120 > window.innerHeight) y = e.clientY - 130;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  }
+
+  function hideTip() {
+    tip.classList.remove('visible');
+  }
+
+  // Bancolombia nodes
+  document.querySelectorAll('#org-banc .node').forEach(n => {
+    const t = n.getAttribute('data-tip');
+    if (!t) return;
+    n.addEventListener('mouseenter', e => showTip(e, '<strong>' + n.querySelector('.node-title').textContent + '</strong>' + t, false));
+    n.addEventListener('mousemove',  moveTip);
+    n.addEventListener('mouseleave', hideTip);
+  });
+
+  // Popular nodes
+  document.querySelectorAll('#org-pop .node').forEach(n => {
+    const t = n.getAttribute('data-pop-tip');
+    if (!t) return;
+    n.addEventListener('mouseenter', e => showTip(e, '<strong>' + n.querySelector('.node-title').textContent + '</strong>' + t, true));
+    n.addEventListener('mousemove',  moveTip);
+    n.addEventListener('mouseleave', hideTip);
+  });
+</script>
+</body>
+</html>
