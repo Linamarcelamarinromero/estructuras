@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yale Endowment - Organigrama</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yale-blue: #00356B;
+    --yale-mid: #286DC0;
+    --yale-light: #63aaff;
+    --yale-gold: #C8A951;
+    --yale-gold-light: #f0d080;
+    --bg: #f4f1ea;
+    --bg-dark: #e8e2d5;
+    --text: #1a1a1a;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(0,53,107,0.13);
+    --shadow-hover: 0 8px 36px rgba(0,53,107,0.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Crimson Pro', serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: var(--yale-blue);
+    padding: 36px 40px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 18px,
+      rgba(200,169,81,0.07) 18px,
+      rgba(200,169,81,0.07) 19px
+    );
+  }
+  .header-inner { position: relative; z-index: 1; }
+  .yale-lux {
+    font-family: 'EB Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--yale-gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'EB Garamond', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+  }
+  .header h1 span {
+    color: var(--yale-gold);
+    font-style: italic;
+  }
+  .header-sub {
+    font-family: 'Crimson Pro', serif;
+    color: rgba(255,255,255,0.65);
+    font-size: 1rem;
+    margin-top: 8px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+  .endowment-badge {
+    display: inline-block;
+    margin-top: 16px;
+    background: var(--yale-gold);
+    color: var(--yale-blue);
+    font-family: 'EB Garamond', serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 5px 18px;
+    border-radius: 2px;
+  }
+
+  /* Main layout */
+  .main {
+    padding: 40px 20px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    background: var(--yale-blue);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px;
+    max-width: 280px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--yale-gold);
+    pointer-events: none;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  }
+  .tooltip.active { display: block; }
+  .tooltip strong {
+    display: block;
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--yale-gold);
+    margin-bottom: 4px;
+  }
+
+  /* BOXES */
+  .box {
+    border-radius: 4px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    position: relative;
+  }
+  .box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+  }
+  .box-title {
+    font-family: 'EB Garamond', serif;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .box-sub {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.82rem;
+    margin-top: 2px;
+  }
+  .box-sub-dark {
+    font-family: 'Crimson Pro', serif;
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(0,53,107,0.65);
+    font-size: 0.82rem;
+    margin-top: 2px;
+  }
+
+  /* Level 1 — Yale Corporation */
+  .box-l1 {
+    background: var(--yale-blue);
+    color: white;
+    border: 2px solid var(--yale-gold);
+    box-shadow: var(--shadow);
+    text-align: center;
+    padding: 18px 24px;
+    max-width: 340px;
+    margin: 0 auto;
+    animation: fadeDown 0.5s ease both;
+  }
+  .box-l1 .box-title { font-size: 1.2rem; color: white; }
+
+  /* Level 2 — Investment Committee */
+  .box-l2 {
+    background: var(--yale-mid);
+    color: white;
+    border: 2px solid rgba(200,169,81,0.5);
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 280px;
+    margin: 0 auto;
+    animation: fadeDown 0.55s ease both;
+  }
+  .box-l2 .box-title { font-size: 1.05rem; }
+
+  /* Level 3 — CIO */
+  .box-cio {
+    background: var(--yale-gold);
+    color: var(--yale-blue);
+    border: 2px solid var(--yale-blue);
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .box-cio .box-title { font-size: 1.15rem; color: var(--yale-blue); }
+  .box-cio .box-sub { color: rgba(0,53,107,0.7); }
+
+  /* Level 4 — Asset classes */
+  .box-asset {
+    background: var(--white);
+    color: var(--yale-blue);
+    border: 1.5px solid var(--yale-mid);
+    box-shadow: 0 2px 12px rgba(0,53,107,0.09);
+    text-align: center;
+    animation: fadeUp 0.65s ease both;
+  }
+  .box-asset .box-title { font-size: 0.95rem; color: var(--yale-blue); }
+  .box-asset:hover { border-color: var(--yale-gold); background: #fdf8ee; }
+
+  /* Level 5 — Support */
+  .box-support {
+    background: var(--bg-dark);
+    color: var(--yale-blue);
+    border: 1.5px solid rgba(0,53,107,0.2);
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    text-align: center;
+    animation: fadeUp 0.7s ease both;
+  }
+  .box-support .box-title { font-size: 0.88rem; color: var(--yale-blue); }
+  .box-support:hover { border-color: var(--yale-mid); }
+
+  /* Audit — dashed */
+  .box-audit {
+    background: var(--white);
+    color: var(--yale-blue);
+    border: 2px dashed var(--yale-gold);
+    box-shadow: 0 2px 12px rgba(0,53,107,0.08);
+    text-align: center;
+    max-width: 200px;
+    margin: 0 auto;
+    animation: fadeUp 0.72s ease both;
+  }
+  .box-audit .box-title { font-size: 0.88rem; }
+
+  /* Connectors */
+  .connector-v {
+    width: 2px;
+    background: linear-gradient(to bottom, var(--yale-mid), var(--yale-light));
+    margin: 0 auto;
+    opacity: 0.5;
+  }
+  .connector-h {
+    height: 2px;
+    background: linear-gradient(to right, var(--yale-light), var(--yale-mid), var(--yale-light));
+    opacity: 0.4;
+  }
+  .connector-dashed {
+    width: 2px;
+    border-left: 2px dashed var(--yale-gold);
+    margin: 0 auto;
+    opacity: 0.6;
+  }
+
+  /* Grid layouts */
+  .row { display: flex; justify-content: center; }
+  .col { display: flex; flex-direction: column; align-items: center; }
+
+  .asset-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+  .support-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Side audit */
+  .audit-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    width: 100%;
+  }
+  .audit-branch {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .audit-h-line {
+    height: 2px;
+    width: 60px;
+    border-top: 2px dashed var(--yale-gold);
+    opacity: 0.6;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: 'EB Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--yale-mid);
+    text-align: center;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  /* Allocation pills */
+  .alloc {
+    display: inline-block;
+    background: var(--yale-blue);
+    color: var(--yale-gold);
+    font-family: 'EB Garamond', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-top: 4px;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 36px;
+    padding: 20px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid rgba(0,53,107,0.12);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.9rem;
+    color: var(--yale-blue);
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid rgba(0,53,107,0.12);
+    border-top: 3px solid var(--yale-blue);
+    border-radius: 4px;
+    padding: 16px 20px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .stat-val {
+    font-family: 'EB Garamond', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--yale-blue);
+    line-height: 1;
+  }
+  .stat-val span { color: var(--yale-gold); }
+  .stat-label {
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.82rem;
+    color: rgba(0,53,107,0.6);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .asset-grid { grid-template-columns: repeat(2, 1fr); }
+    .support-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-bar { grid-template-columns: 1fr; }
+    .header h1 { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="yale-lux">Yale University &mdash; New Haven, Connecticut</div>
+    <h1>Yale <span>Investments</span> Office</h1>
+    <div class="header-sub">Estructura de Gobierno y Gestion del Endowment</div>
+    <div class="endowment-badge">Endowment USD 40.7 Billones &mdash; 2024</div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip">
+  <strong id="tooltip-title"></strong>
+  <span id="tooltip-body"></span>
+</div>
+
+<div class="main">
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-val">40<span>.7B</span></div>
+      <div class="stat-label">Valor del Endowment 2024</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">5<span>.7%</span></div>
+      <div class="stat-label">Retorno Neto Fiscal 2024</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">~<span>40%</span></div>
+      <div class="stat-label">Financiamiento presupuesto Yale</div>
+    </div>
+  </div>
+
+  <!-- LEVEL 1: Yale Corporation -->
+  <div class="section-label">Maximo Organo de Gobierno</div>
+  <div
+    class="box box-l1"
+    data-title="Yale Corporation (Board of Trustees)"
+    data-desc="Organo supremo de gobierno de Yale University. Compuesto por Fellows y Trustees. Tiene responsabilidad fiduciaria final sobre el endowment. Delega la supervision de inversiones al Investment Committee."
+  >
+    <div class="box-title">Yale Corporation</div>
+    <div class="box-sub">Board of Trustees &mdash; Organo Supremo de Gobierno</div>
+  </div>
+
+  <!-- Connector -->
+  <div class="col">
+    <div class="connector-v" style="height:28px;"></div>
+  </div>
+
+  <!-- LEVEL 2: Investment Committee + Audit branch -->
+  <div class="audit-row">
+    <div class="col" style="flex:1; max-width:500px; position:relative;">
+      <div
+        class="box box-l2"
+        style="width:100%;"
+        data-title="Investment Committee"
+        data-desc="Comite especializado de la Yale Corporation. Supervisa las politicas de inversion, el asset allocation estrategico y el desempeno del Yale Investments Office. Aprueba mandatos y gestores externos clave."
+      >
+        <div class="box-title">Investment Committee</div>
+        <div class="box-sub">Comite de la Yale Corporation</div>
+      </div>
+    </div>
+
+    <!-- Audit side branch -->
+    <div style="position:absolute; right: max(20px, calc(50% - 340px)); top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:0;">
+      <div class="audit-h-line"></div>
+      <div
+        class="box box-audit"
+        data-title="Auditoria Interna"
+        data-desc="Reporta directamente a la Yale Corporation de manera independiente. Revisa controles internos, cumplimiento regulatorio y la integridad de los reportes financieros del Investments Office."
+      >
+        <div class="box-title">Auditoria Interna</div>
+        <div class="box-sub-dark" style="color:rgba(0,53,107,0.6);">Linea independiente</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="col">
+    <div class="connector-v" style="height:28px;"></div>
+  </div>
+
+  <!-- LEVEL 3: CIO -->
+  <div class="section-label">Direccion Ejecutiva</div>
+  <div
+    class="box box-cio"
+    data-title="Chief Investment Officer (CIO)"
+    data-desc="Matthew Mendelsohn es el CIO actual desde 2022, sucesor de David Swensen (1985-2021), arquitecto del famoso Yale Model. El CIO dirige el Yale Investments Office y lidera la estrategia de inversion del endowment."
+  >
+    <div class="box-title">Chief Investment Officer (CIO)</div>
+    <div class="box-sub" style="color:rgba(0,53,107,0.7);">Matthew Mendelsohn &mdash; Yale Investments Office</div>
+  </div>
+
+  <!-- Connector -->
+  <div class="col">
+    <div class="connector-v" style="height:28px;"></div>
+  </div>
+
+  <!-- LEVEL 3b: Deputy / Managing Directors -->
+  <div class="section-label">Direccion de Operaciones e Inversiones</div>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:800px; margin:0 auto 0;">
+    <div class="box box-l2 col" style="max-width:none; animation-delay:0.05s;"
+      data-title="Deputy CIO / Managing Directors"
+      data-desc="Apoyan al CIO en la supervision de clases de activos y en la gestion de relaciones con gestores externos. Lideran evaluacion y due diligence de nuevas inversiones."
+    >
+      <div class="box-title" style="font-size:0.92rem;">Deputy CIO</div>
+      <div class="box-sub">Apoyo estrategico al CIO</div>
+    </div>
+    <div class="box box-l2 col" style="max-width:none; animation-delay:0.1s;"
+      data-title="Director de Riesgo e Investigacion"
+      data-desc="Responsable del monitoreo de riesgos de cartera, analisis cuantitativo y reportes de desempeno. Garantiza el cumplimiento del marco de riesgo definido por el Investment Committee."
+    >
+      <div class="box-title" style="font-size:0.92rem;">Riesgo e Investigacion</div>
+      <div class="box-sub">Analisis cuantitativo</div>
+    </div>
+    <div class="box box-l2 col" style="max-width:none; animation-delay:0.15s;"
+      data-title="Director de Operaciones y Legal"
+      data-desc="Supervisa operaciones del back-office, cumplimiento legal y regulatorio, contratos con gestores externos y reportes financieros del endowment a la Universidad."
+    >
+      <div class="box-title" style="font-size:0.92rem;">Operaciones y Legal</div>
+      <div class="box-sub">Back-office y compliance</div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="col">
+    <div class="connector-v" style="height:28px;"></div>
+    <div class="connector-h" style="width:90%; max-width:900px;"></div>
+  </div>
+
+  <!-- LEVEL 4: Asset classes -->
+  <div class="section-label">Equipos por Clase de Activo &mdash; Yale Model</div>
+  <div class="asset-grid" style="max-width:980px; margin:0 auto;">
+    <div class="box box-asset col" data-title="Absolute Return (Hedge Funds)"
+      data-desc="Mayor clase de activo del endowment. Fondos de cobertura con estrategias long/short, event-driven y macro. Buscan retornos no correlacionados con mercados publicos. Asignacion aprox. 21.5%.">
+      <div class="box-title">Absolute Return</div>
+      <div class="box-sub-dark">Hedge Funds</div>
+      <div class="alloc">~21.5%</div>
+    </div>
+    <div class="box box-asset col" data-title="Private Equity (Leveraged Buyouts)"
+      data-desc="Inversiones en fondos de capital privado: buyouts, venture capital y crecimiento. Una de las clases con mayor retorno historico en el endowment de Yale. Asignacion aprox. 17.5%.">
+      <div class="box-title">Private Equity</div>
+      <div class="box-sub-dark">Buyouts y Venture</div>
+      <div class="alloc">~17.5%</div>
+    </div>
+    <div class="box box-asset col" data-title="Venture Capital"
+      data-desc="Inversion en startups y empresas en etapas tempranas. Yale fue pionero en esta clase de activo para endowments universitarios. Incluye fondos de Silicon Valley e internacionales.">
+      <div class="box-title">Venture Capital</div>
+      <div class="box-sub-dark">Startups y tecnologia</div>
+      <div class="alloc">~14.7%</div>
+    </div>
+    <div class="box box-asset col" data-title="Real Assets (Activos Reales)"
+      data-desc="Incluye real estate (bienes raices), madera (Timber), petroleo y gas, e infraestructura. Proveen cobertura contra inflacion y flujos de caja estables. Asignacion aprox. 13.4%.">
+      <div class="box-title">Real Assets</div>
+      <div class="box-sub-dark">Real estate, Timber, Infra</div>
+      <div class="alloc">~13.4%</div>
+    </div>
+    <div class="box box-asset col" data-title="Leveraged Buyouts (LBO)"
+      data-desc="Adquisiciones de empresas utilizando apalancamiento financiero. Inversion a traves de gestores externos especializados en reestructuraciones y creacion de valor operativo.">
+      <div class="box-title">Leveraged Buyouts</div>
+      <div class="box-sub-dark">Adquisiciones apalancadas</div>
+      <div class="alloc">~11.0%</div>
+    </div>
+    <div class="box box-asset col" data-title="Renta Fija y Bonos"
+      data-desc="Instrumentos de deuda soberana y corporativa. Proporcionan liquidez y estabilidad al portafolio. La asignacion es deliberadamente baja en el Yale Model para priorizar activos alternativos.">
+      <div class="box-title">Renta Fija</div>
+      <div class="box-sub-dark">Bonos y liquidez</div>
+      <div class="alloc">~7.5%</div>
+    </div>
+    <div class="box box-asset col" data-title="Acciones Publicas (Renta Variable)"
+      data-desc="Portafolio de acciones en mercados publicos globales. Tiene menor peso que en fondos convencionales, reflejo del Yale Model que prefiere activos iliquidos con prima de riesgo mayor.">
+      <div class="box-title">Renta Variable</div>
+      <div class="box-sub-dark">Acciones globales publicas</div>
+      <div class="alloc">~7.7%</div>
+    </div>
+    <div class="box box-asset col" data-title="Cash y Otros"
+      data-desc="Reservas de liquidez para cubrir desembolsos de la Universidad, compromisos de capital con gestores (capital calls) y oportunidades de inversion tacticamente identificadas.">
+      <div class="box-title">Cash y Otros</div>
+      <div class="box-sub-dark">Liquidez operativa</div>
+      <div class="alloc">~6.7%</div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="col">
+    <div class="connector-v" style="height:28px;"></div>
+    <div class="connector-h" style="width:70%; max-width:700px;"></div>
+  </div>
+
+  <!-- LEVEL 5: Support areas -->
+  <div class="section-label">Areas de Soporte Especializado</div>
+  <div class="support-grid">
+    <div class="box box-support col" style="animation-delay:0.1s;"
+      data-title="Relacion con Gestores Externos"
+      data-desc="El Yale Investments Office no gestiona activos directamente; selecciona y monitorea gestores externos de clase mundial en cada categoria de activos. Due diligence continuo y evaluacion de desempeno.">
+      <div class="box-title">Gestores Externos</div>
+      <div class="box-sub-dark">Seleccion y monitoreo</div>
+    </div>
+    <div class="box box-support col" style="animation-delay:0.15s;"
+      data-title="Contabilidad y Reportes Financieros"
+      data-desc="Consolida los estados financieros del endowment, coordina con la contraloria de Yale University y prepara reportes anuales de desempeno publicados oficialmente.">
+      <div class="box-title">Contabilidad y Reportes</div>
+      <div class="box-sub-dark">Estados financieros</div>
+    </div>
+    <div class="box box-support col" style="animation-delay:0.2s;"
+      data-title="Tecnologia e Infraestructura de Datos"
+      data-desc="Plataformas de analisis de portafolio, sistemas de gestion de gestores externos, reportes de atribucion de desempeno y herramientas de monitoreo de riesgos en tiempo real.">
+      <div class="box-title">Tecnologia e IT</div>
+      <div class="box-sub-dark">Plataformas de analisis</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--yale-blue);"></div>
+      Gobierno y Supervision
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--yale-mid);"></div>
+      Direccion Ejecutiva
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--yale-gold);"></div>
+      Liderazgo Estrategico (CIO)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:white; border:1.5px solid var(--yale-mid);"></div>
+      Clases de Activo
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--bg-dark); border:1px dashed var(--yale-gold);"></div>
+      Soporte y Auditoria
+    </div>
+    <div class="legend-item" style="font-style:italic; color:rgba(0,53,107,0.6);">
+      Pasa el cursor sobre cada caja para ver detalles
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tooltip = document.getElementById('tooltip');
+  const tooltipTitle = document.getElementById('tooltip-title');
+  const tooltipBody  = document.getElementById('tooltip-body');
+
+  document.querySelectorAll('.box[data-title]').forEach(el => {
+    el.addEventListener('mouseenter', e => {
+      tooltipTitle.textContent = el.dataset.title;
+      tooltipBody.textContent  = el.dataset.desc;
+      tooltip.classList.add('active');
+    });
+    el.addEventListener('mousemove', e => {
+      const x = e.clientX, y = e.clientY;
+      const tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
+      tooltip.style.left = (x + 16 + tw > window.innerWidth ? x - tw - 12 : x + 16) + 'px';
+      tooltip.style.top  = (y + 20 + th > window.innerHeight ? y - th - 10 : y + 20) + 'px';
+    });
+    el.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('active');
+    });
+  });
+</script>
+</body>
+</html>
