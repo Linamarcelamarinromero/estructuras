@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organigramas Fiduciarias</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --alianza-dark: #0a1628;
+    --alianza-mid: #1a3a5c;
+    --alianza-accent: #c8922a;
+    --alianza-light: #e8b84b;
+    --corfi-dark: #1a0a2e;
+    --corfi-mid: #3b1f6e;
+    --corfi-accent: #7c3aed;
+    --corfi-light: #a78bfa;
+    --text-light: #f0f4ff;
+    --text-muted: #94a3b8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #080c14;
+    color: var(--text-light);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 48px 24px 32px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--alianza-accent), transparent);
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+  .header p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 36px 24px 0;
+  }
+  .tab-btn {
+    padding: 12px 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .tab-btn.active-alianza {
+    background: linear-gradient(135deg, var(--alianza-mid), var(--alianza-dark));
+    border-color: var(--alianza-accent);
+    color: var(--alianza-light);
+    box-shadow: 0 0 20px rgba(200,146,42,0.2);
+  }
+  .tab-btn.active-corfi {
+    background: linear-gradient(135deg, var(--corfi-mid), var(--corfi-dark));
+    border-color: var(--corfi-accent);
+    color: var(--corfi-light);
+    box-shadow: 0 0 20px rgba(124,58,237,0.3);
+  }
+
+  /* PANELS */
+  .panel { display: none; padding: 40px 20px 60px; animation: fadeUp 0.5s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 44px;
+  }
+  .stat {
+    padding: 10px 20px;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  .stat span { display: block; font-size: 1.1rem; font-weight: 700; margin-bottom: 2px; }
+  .alianza .stat { background: rgba(200,146,42,0.1); border: 1px solid rgba(200,146,42,0.25); color: var(--alianza-light); }
+  .corfi .stat { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3); color: var(--corfi-light); }
+
+  /* CHART CONTAINER */
+  .chart { display: flex; flex-direction: column; align-items: center; gap: 0; max-width: 1100px; margin: 0 auto; }
+
+  /* LEVEL ROW */
+  .level { display: flex; justify-content: center; align-items: flex-start; gap: 14px; flex-wrap: wrap; width: 100%; position: relative; }
+
+  /* CONNECTOR LINES */
+  .connector-v {
+    width: 2px; height: 32px;
+    background: linear-gradient(180deg, rgba(200,146,42,0.6), rgba(200,146,42,0.2));
+    margin: 0 auto;
+  }
+  .connector-v.corfi-line {
+    background: linear-gradient(180deg, rgba(124,58,237,0.7), rgba(124,58,237,0.2));
+  }
+  .connector-h-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+  }
+  .connector-h-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 2px; height: 32px;
+  }
+  .alianza .connector-h-wrap::before { background: rgba(200,146,42,0.5); }
+  .corfi .connector-h-wrap::before { background: rgba(124,58,237,0.6); }
+
+  /* NODE CARDS */
+  .node {
+    border-radius: 4px;
+    padding: 14px 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    min-width: 140px;
+    max-width: 200px;
+  }
+  .node:hover { transform: translateY(-3px); }
+  .node .title { font-weight: 600; font-size: 0.78rem; line-height: 1.3; }
+  .node .subtitle { font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  /* ALIANZA NODE STYLES */
+  .alianza .node-top {
+    background: linear-gradient(135deg, var(--alianza-mid), var(--alianza-dark));
+    border: 2px solid var(--alianza-accent);
+    box-shadow: 0 0 30px rgba(200,146,42,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+    min-width: 260px;
+    padding: 18px 28px;
+  }
+  .alianza .node-top .title { font-size: 0.95rem; color: var(--alianza-light); }
+  .alianza .node-l2 {
+    background: linear-gradient(135deg, rgba(26,58,92,0.8), rgba(10,22,40,0.9));
+    border: 1px solid rgba(200,146,42,0.4);
+  }
+  .alianza .node-l2 .title { color: #e2d5bc; }
+  .alianza .node-l3 {
+    background: rgba(10,22,40,0.7);
+    border: 1px solid rgba(200,146,42,0.2);
+    min-width: 130px;
+    max-width: 170px;
+    padding: 10px 12px;
+  }
+  .alianza .node-l3 .title { color: var(--text-muted); font-size: 0.72rem; }
+  .alianza .node-control {
+    background: rgba(200,146,42,0.08);
+    border: 1px dashed rgba(200,146,42,0.35);
+    min-width: 150px;
+  }
+  .alianza .node-control .title { color: var(--alianza-accent); }
+
+  /* CORFI NODE STYLES */
+  .corfi .node-top {
+    background: linear-gradient(135deg, var(--corfi-mid), var(--corfi-dark));
+    border: 2px solid var(--corfi-accent);
+    box-shadow: 0 0 30px rgba(124,58,237,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+    min-width: 260px;
+    padding: 18px 28px;
+  }
+  .corfi .node-top .title { font-size: 0.95rem; color: var(--corfi-light); }
+  .corfi .node-l2 {
+    background: linear-gradient(135deg, rgba(59,31,110,0.7), rgba(26,10,46,0.9));
+    border: 1px solid rgba(124,58,237,0.45);
+  }
+  .corfi .node-l2 .title { color: #d4c4f8; }
+  .corfi .node-l3 {
+    background: rgba(26,10,46,0.6);
+    border: 1px solid rgba(124,58,237,0.22);
+    min-width: 130px;
+    max-width: 170px;
+    padding: 10px 12px;
+  }
+  .corfi .node-l3 .title { color: var(--text-muted); font-size: 0.72rem; }
+  .corfi .node-control {
+    background: rgba(124,58,237,0.08);
+    border: 1px dashed rgba(124,58,237,0.4);
+    min-width: 150px;
+  }
+  .corfi .node-control .title { color: var(--corfi-light); }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e2a3a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    width: 220px;
+    z-index: 999;
+    text-align: left;
+    line-height: 1.5;
+    pointer-events: none;
+    display: none;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  .node:hover .tooltip { display: block; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin: 8px 0 14px;
+    text-align: center;
+  }
+  .alianza .section-label { color: rgba(200,146,42,0.6); }
+  .corfi .section-label { color: rgba(124,58,237,0.7); }
+
+  /* HORIZONTAL BRANCH */
+  .branch-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
+    width: 100%;
+    flex-wrap: wrap;
+    padding-top: 32px;
+    position: relative;
+  }
+  .branch-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 2px; height: 32px;
+  }
+  .alianza .branch-wrap::before { background: rgba(200,146,42,0.45); }
+  .corfi .branch-wrap::before { background: rgba(124,58,237,0.55); }
+
+  /* WIDE HORIZONTAL LINE under l2 nodes */
+  .h-line-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .h-line {
+    position: absolute;
+    top: 0;
+    height: 2px;
+    width: 70%;
+  }
+  .alianza .h-line { background: linear-gradient(90deg, transparent, rgba(200,146,42,0.35), transparent); }
+  .corfi .h-line { background: linear-gradient(90deg, transparent, rgba(124,58,237,0.45), transparent); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 6px;
+  }
+  .alianza .badge { background: rgba(200,146,42,0.2); color: var(--alianza-accent); }
+  .corfi .badge { background: rgba(124,58,237,0.2); color: var(--corfi-light); }
+
+  .gap-v { height: 32px; }
+  .gap-v-sm { height: 16px; }
+
+  /* FOOTER NOTE */
+  .footnote {
+    text-align: center;
+    font-size: 0.7rem;
+    color: rgba(148,163,184,0.5);
+    margin-top: 40px;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Organigramas Fiduciarias Colombia</h1>
+  <p>Gobierno Corporativo · Superintendencia Financiera de Colombia</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active-alianza" onclick="showTab('alianza', this)">Alianza Fiduciaria</button>
+  <button class="tab-btn" onclick="showTab('corfi', this)">Fiduciaria Corficolombiana</button>
+</div>
+
+<!-- ===== ALIANZA FIDUCIARIA ===== -->
+<div id="panel-alianza" class="panel active alianza">
+
+  <div class="stats-bar">
+    <div class="stat"><span>Org. Delima</span>Grupo Corporativo</div>
+    <div class="stat"><span>+35 Anos</span>Trayectoria en el mercado</div>
+    <div class="stat"><span>Top 5</span>Fiduciaria independiente</div>
+    <div class="stat"><span>SFC</span>Regulada y vigilada</div>
+  </div>
+
+  <div class="chart">
+
+    <!-- ORGANOS DE CONTROL -->
+    <div class="section-label">Organos de Control y Vigilancia</div>
+    <div class="level">
+      <div class="node node-control" style="min-width:160px">
+        <div class="title">Asamblea General de Accionistas</div>
+        <div class="subtitle">Maximo organo social</div>
+        <div class="tooltip">Define el destino de la empresa. Aprueba estados financieros, reformas estatutarias y distribucion de utilidades.</div>
+      </div>
+      <div class="node node-control" style="min-width:150px">
+        <div class="title">Revisor Fiscal</div>
+        <div class="subtitle">Control externo independiente</div>
+        <div class="tooltip">Garantiza la transparencia contable y el cumplimiento normativo ante la Superintendencia Financiera.</div>
+      </div>
+    </div>
+
+    <div class="connector-v"></div>
+
+    <!-- JUNTA DIRECTIVA -->
+    <div class="level">
+      <div class="node node-top" style="min-width:300px">
+        <div class="badge">Gobierno Corporativo</div>
+        <div class="title">Junta Directiva</div>
+        <div class="subtitle">Ernesto de Lima Lefranc · Presidente de Junta</div>
+        <div class="tooltip">Maximo organo de administracion. Define lineamientos estrategicos, aprueba politicas de riesgo, inversiones y gobierno corporativo.</div>
+      </div>
+    </div>
+
+    <div class="connector-v"></div>
+
+    <!-- COMITES -->
+    <div class="section-label">Comites de Junta</div>
+    <div class="level">
+      <div class="node node-l3">
+        <div class="title">Comite de Auditoria</div>
+        <div class="tooltip">Supervisa los procesos de auditoria interna, control interno y relacion con el revisor fiscal.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Comite de Riesgos</div>
+        <div class="tooltip">Evalua y aprueba el apetito de riesgo de la compania y las politicas de gestion de riesgos financieros y operativos.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Comite de Inversiones</div>
+        <div class="tooltip">Define la politica de inversiones de los portafolios administrados y supervisa el desempeno de los mismos.</div>
+      </div>
+    </div>
+
+    <div class="connector-v"></div>
+
+    <!-- PRESIDENCIA -->
+    <div class="level">
+      <div class="node node-l2" style="min-width:260px; padding:16px 24px;">
+        <div class="badge">Direccion Ejecutiva</div>
+        <div class="title">Presidencia</div>
+        <div class="subtitle">CEO / Representante Legal</div>
+        <div class="tooltip">Dirige la estrategia comercial, operativa y financiera de Alianza Fiduciaria. Reporta directamente a la Junta Directiva.</div>
+      </div>
+    </div>
+
+    <div class="connector-v"></div>
+
+    <!-- VICEPRESIDENCIAS / GERENCIAS L1 -->
+    <div class="section-label">Vicepresidencias y Gerencias Ejecutivas</div>
+    <div class="branch-wrap">
+      <div class="node node-l2">
+        <div class="title">Vicepresidencia Comercial y de Negocio</div>
+        <div class="subtitle">Crecimiento y clientes</div>
+        <div class="tooltip">Lidera las estrategias de crecimiento, captacion de clientes y administracion de los negocios fiduciarios core.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">Vicepresidencia de Inversiones</div>
+        <div class="subtitle">Portafolios y rentabilidad</div>
+        <div class="tooltip">Gestiona los portafolios de inversion de fondos y fideicomisos. Administra renta fija, variable y alternativos.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">Vicepresidencia Juridica y de Cumplimiento</div>
+        <div class="subtitle">Legal · SARLAFT · Regulatorio</div>
+        <div class="tooltip">Asegura el cumplimiento legal, contractual y regulatorio. Gestiona el SARLAFT y la prevencion de lavado de activos.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">Vicepresidencia Financiera y Administrativa</div>
+        <div class="subtitle">Finanzas · Contabilidad · Ops</div>
+        <div class="tooltip">Responsable de la contabilidad, tesoreria, presupuesto, tecnologia y servicios administrativos generales.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">Gerencia de Riesgos</div>
+        <div class="subtitle">SARO · SARC · SAROC</div>
+        <div class="tooltip">Identifica, mide y controla los riesgos operativos, de credito, mercado y liquidez de la organizacion.</div>
+      </div>
+    </div>
+
+    <div class="gap-v"></div>
+
+    <!-- LINEAS DE NEGOCIO -->
+    <div class="section-label">Lineas de Negocio Especializadas</div>
+    <div class="level">
+      <div class="node node-l3">
+        <div class="title">Fiducia de Administracion</div>
+        <div class="tooltip">Administracion de recursos de terceros bajo instrucciones especificas del fideicomitente.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fiducia Inmobiliaria</div>
+        <div class="tooltip">Estructuracion de proyectos inmobiliarios, preventas y administracion de encargos fiduciarios.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fondos de Inversion Colectiva</div>
+        <div class="tooltip">Gestion de fondos de capital abierto y cerrado para personas naturales y juridicas.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fiducia de Garantia</div>
+        <div class="tooltip">Estructuracion de garantias fiduciarias para operaciones de credito y obligaciones contractuales.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Patrimonio Autonomo Publico</div>
+        <div class="tooltip">Administracion de recursos publicos y contratos con entidades del Estado bajo esquemas de transparencia.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footnote">Estructura representativa basada en informacion publica oficial · Alianza Fiduciaria S.A. · Organizacion Delima</div>
+</div>
+
+<!-- ===== FIDUCIARIA CORFICOLOMBIANA ===== -->
+<div id="panel-corfi" class="panel corfi">
+
+  <div class="stats-bar">
+    <div class="stat"><span>Grupo Aval</span>Grupo Corporativo</div>
+    <div class="stat"><span>Corficolombiana</span>Casa Matriz</div>
+    <div class="stat"><span>Gustavo Ramirez</span>VP Ejecutivo</div>
+    <div class="stat"><span>SFC</span>Regulada y vigilada</div>
+  </div>
+
+  <div class="chart">
+
+    <!-- ORGANOS DE CONTROL -->
+    <div class="section-label">Organos de Control y Vigilancia</div>
+    <div class="level">
+      <div class="node node-control" style="min-width:160px">
+        <div class="title">Asamblea General de Accionistas</div>
+        <div class="subtitle">Maximo organo social</div>
+        <div class="tooltip">Maximo poder decisorio. Aprueba estados financieros, politica de dividendos y reformas estatutarias.</div>
+      </div>
+      <div class="node node-control" style="min-width:160px">
+        <div class="title">Revisor Fiscal</div>
+        <div class="subtitle">Control externo</div>
+        <div class="tooltip">Verifica el cumplimiento contable y legal. Informa a la Asamblea y a la Superintendencia Financiera.</div>
+      </div>
+      <div class="node node-control" style="min-width:160px">
+        <div class="title">Contraloria Corporativa</div>
+        <div class="subtitle">Control interno</div>
+        <div class="tooltip">Funcion de control interno independiente. Evalua el diseno y efectividad del sistema de control interno.</div>
+      </div>
+    </div>
+
+    <div class="connector-v corfi-line"></div>
+
+    <!-- JUNTA DIRECTIVA -->
+    <div class="level">
+      <div class="node node-top" style="min-width:320px">
+        <div class="badge">Gobierno Corporativo</div>
+        <div class="title">Junta Directiva</div>
+        <div class="subtitle">Presidida por delegado de Corficolombiana</div>
+        <div class="tooltip">Define la estrategia corporativa, aprueba politicas de riesgo, inversiones y gobierno. Reporta a la Asamblea de Accionistas.</div>
+      </div>
+    </div>
+
+    <div class="connector-v corfi-line"></div>
+
+    <!-- COMITES DE JUNTA -->
+    <div class="section-label">Comites de Junta Directiva</div>
+    <div class="level">
+      <div class="node node-l3">
+        <div class="title">Comite de Auditoria</div>
+        <div class="tooltip">Supervisa la efectividad del control interno y la auditoria externa. Aprueba el plan de auditoria anual.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Comite de Riesgos</div>
+        <div class="tooltip">Define y supervisa el sistema de administracion de riesgos: SARO, SARC, SAROC y riesgo de liquidez.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Comite de Inversiones</div>
+        <div class="tooltip">Aprueba politicas y limites de inversion para portafolios administrados y recursos propios.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Comite de Cumplimiento</div>
+        <div class="tooltip">Supervisa el SARLAFT, el codigo de conducta y el cumplimiento de normas de gobierno corporativo.</div>
+      </div>
+    </div>
+
+    <div class="connector-v corfi-line"></div>
+
+    <!-- PRESIDENCIA -->
+    <div class="level">
+      <div class="node node-l2" style="min-width:280px; padding:16px 26px;">
+        <div class="badge">Alta Direccion</div>
+        <div class="title">Presidencia</div>
+        <div class="subtitle">Representante Legal · CEO</div>
+        <div class="tooltip">Ejecuta la estrategia aprobada por la Junta. Coordina todas las vicepresidencias y responde ante los organos de control.</div>
+      </div>
+    </div>
+
+    <div class="connector-v corfi-line"></div>
+
+    <!-- DIRECCION DE AUDITORIA -->
+    <div class="level">
+      <div class="node node-l3" style="border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.07)">
+        <div class="title">Direccion de Auditoria Interna</div>
+        <div class="subtitle">Independiente a Presidencia</div>
+        <div class="tooltip">Evalua de forma independiente los procesos y controles internos. Reporta funcionalmente al Comite de Auditoria.</div>
+      </div>
+    </div>
+
+    <div class="connector-v corfi-line"></div>
+
+    <!-- VICEPRESIDENCIAS -->
+    <div class="section-label">Vicepresidencias Ejecutivas</div>
+    <div class="branch-wrap">
+      <div class="node node-l2">
+        <div class="title">VP Ejecutivo</div>
+        <div class="subtitle">Gustavo Ramirez Galindo</div>
+        <div class="tooltip">Segunda linea de mando. Coordina la estrategia de negocio y supervisa las gerencias operativas y comerciales.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">VP de Inversiones</div>
+        <div class="subtitle">Alejandro Sanchez Vaca</div>
+        <div class="tooltip">Lidera la estrategia de inversion de portafolios propios y de terceros. Renta fija, variable y activos alternativos.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">VP Juridica</div>
+        <div class="subtitle">Legal · Contratos · Regulatorio</div>
+        <div class="tooltip">Gestiona el area legal corporativa, contratos fiduciarios y relacion con la Superintendencia Financiera.</div>
+      </div>
+      <div class="node node-l2">
+        <div class="title">VP Financiera y Administrativa</div>
+        <div class="subtitle">Finanzas · Contabilidad · TI</div>
+        <div class="tooltip">Responsable de contabilidad, presupuesto, tesoreria propia, tecnologia y servicios administrativos.</div>
+      </div>
+    </div>
+
+    <div class="gap-v"></div>
+
+    <!-- GERENCIAS -->
+    <div class="section-label">Gerencias de Negocio y Soporte</div>
+    <div class="level">
+      <div class="node node-l3">
+        <div class="title">Gerencia Comercial</div>
+        <div class="tooltip">Captacion de nuevos negocios, relacionamiento con clientes institucionales y estructuracion de propuestas.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Gerencia de Operaciones</div>
+        <div class="tooltip">Procesamiento de instrucciones, liquidacion de operaciones y administracion de fideicomisos activos.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Gerencia de Riesgos</div>
+        <div class="tooltip">Medicion y control de riesgos de mercado, credito, liquidez y operativo bajo los sistemas SARO/SARC.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Gerencia de Cumplimiento</div>
+        <div class="tooltip">Implementa el SARLAFT, previene el lavado de activos y vela por el cumplimiento etico y normativo.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Gerencia de Tecnologia</div>
+        <div class="tooltip">Infraestructura tecnologica, seguridad de la informacion y transformacion digital de los procesos fiduciarios.</div>
+      </div>
+    </div>
+
+    <div class="gap-v"></div>
+
+    <!-- LINEAS DE NEGOCIO -->
+    <div class="section-label">Lineas de Negocio Especializadas</div>
+    <div class="level">
+      <div class="node node-l3">
+        <div class="title">Fiducia de Administracion</div>
+        <div class="tooltip">Manejo de recursos de terceros bajo instrucciones contractuales definidas por el fideicomitente.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fiducia Inmobiliaria</div>
+        <div class="tooltip">Estructuracion de proyectos de construccion, administracion de encargos y esquemas de preventas.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fiducia de Inversion</div>
+        <div class="tooltip">Administracion de portafolios individuales e institucionales con politicas de inversion definidas.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fondos Colectivos</div>
+        <div class="tooltip">Administracion de fondos de inversion colectiva abiertos y cerrados para distintos perfiles de riesgo.</div>
+      </div>
+      <div class="node node-l3">
+        <div class="title">Fiducia de Garantia</div>
+        <div class="tooltip">Constitucion y administracion de garantias fiduciarias en operaciones de credito corporativo.</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="footnote">Estructura representativa basada en informacion publica oficial · Fiduciaria Corficolombiana S.A. · Grupo Aval</div>
+</div>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active-alianza', 'active-corfi');
+    });
+    btn.classList.add('active-' + id);
+  }
+</script>
+</body>
+</html>
