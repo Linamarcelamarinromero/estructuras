@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harvard Management Company - Estructura Organizacional</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #A51C30;
+    --crimson-dark: #7a1322;
+    --crimson-light: #c9273f;
+    --gold: #C9A84C;
+    --gold-light: #e8c96a;
+    --cream: #FAF7F2;
+    --parchment: #F0EAE0;
+    --dark: #1a1208;
+    --text: #2C1810;
+    --text-muted: #6b5744;
+    --border: #d4c4a8;
+    --shadow: rgba(26,18,8,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--cream);
+    font-family: 'Crimson Pro', Georgia, serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(169,28,48,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .shield {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+  }
+
+  .header-eyebrow {
+    font-family: 'Crimson Pro', serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--crimson-dark);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .header h2 {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 22px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .divider {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 12px;
+  }
+
+  .endowment-badge {
+    display: inline-block;
+    background: var(--crimson);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    padding: 6px 20px;
+    border-radius: 2px;
+  }
+
+  /* Org tree */
+  .org-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Node styles */
+  .node {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .node:hover { transform: translateY(-2px); }
+
+  .node-box {
+    border-radius: 4px;
+    padding: 16px 24px;
+    text-align: center;
+    position: relative;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .node:hover .node-box {
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+
+  /* Level styles */
+  .level-0 .node-box {
+    background: linear-gradient(135deg, var(--crimson-dark) 0%, var(--crimson) 100%);
+    color: white;
+    border: 2px solid var(--gold);
+    min-width: 300px;
+    padding: 20px 32px;
+    box-shadow: 0 6px 24px rgba(165,28,48,0.35);
+  }
+
+  .level-0 .node-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .level-0 .node-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    font-style: italic;
+  }
+
+  .level-1 .node-box {
+    background: white;
+    border: 2px solid var(--crimson);
+    min-width: 220px;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+
+  .level-1 .node-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--crimson-dark);
+    margin-bottom: 3px;
+  }
+
+  .level-1 .node-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .level-2 .node-box {
+    background: var(--parchment);
+    border: 1.5px solid var(--border);
+    min-width: 170px;
+    padding: 12px 16px;
+  }
+
+  .level-2 .node-title {
+    font-family: 'Crimson Pro', serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .level-2 .node-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .level-gold .node-box {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    border: 1.5px solid var(--gold);
+    min-width: 200px;
+    padding: 14px 20px;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.25);
+  }
+
+  .level-gold .node-title {
+    font-family: 'EB Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 3px;
+  }
+
+  .level-gold .node-sub {
+    font-size: 12px;
+    color: rgba(26,18,8,0.65);
+    font-style: italic;
+  }
+
+  /* Connector lines */
+  .connector-v {
+    width: 2px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  .connector-v.crimson { background: var(--crimson); opacity: 0.4; }
+  .connector-v.gold { background: var(--gold); opacity: 0.6; }
+
+  .connector-h-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .horizontal-line {
+    height: 2px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  .horizontal-line.crimson { background: var(--crimson); opacity: 0.35; }
+
+  /* Row layouts */
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .row-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark);
+    color: #f5ede0;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px 16px;
+    border-radius: 4px;
+    width: 240px;
+    z-index: 100;
+    border-left: 3px solid var(--gold);
+    pointer-events: none;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--dark);
+  }
+
+  .node:hover .tooltip { display: block; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 44px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-dot.crimson { background: var(--crimson); }
+  .legend-dot.gold { background: var(--gold); }
+  .legend-dot.parchment { background: var(--parchment); border: 1.5px solid var(--border); }
+  .legend-dot.white { background: white; border: 2px solid var(--crimson); }
+
+  /* Source note */
+  .source-note {
+    text-align: center;
+    margin-top: 36px;
+    padding: 16px 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-style: italic;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .source-note a {
+    color: var(--crimson);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .source-note a:hover { text-decoration: underline; }
+
+  /* Dashed node for audit */
+  .audit-line {
+    width: 2px;
+    height: 40px;
+    border-left: 2px dashed var(--gold);
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Crimson Pro', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    margin: 4px 0;
+  }
+
+  @media (max-width: 768px) {
+    .row { gap: 10px; }
+    .level-1 .node-box { min-width: 150px; padding: 12px 14px; }
+    .level-2 .node-box { min-width: 130px; padding: 10px 12px; }
+    .header h1 { font-size: 28px; }
+    .row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <svg class="shield" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 2L4 14V36C4 52 32 70 32 70C32 70 60 52 60 36V14L32 2Z" fill="#A51C30" stroke="#C9A84C" stroke-width="2"/>
+      <text x="32" y="46" font-family="Georgia" font-size="22" font-weight="bold" fill="#C9A84C" text-anchor="middle">H</text>
+    </svg>
+    <div class="header-eyebrow">Estructura Organizacional Oficial</div>
+    <h1>Harvard Management Company</h1>
+    <h2>Administradora del Endowment de Harvard University</h2>
+    <div class="divider"></div>
+    <span class="endowment-badge">Endowment: USD 50.7 Billones (2024)</span>
+  </div>
+
+  <!-- Org Tree -->
+  <div class="org-tree">
+
+    <!-- Nivel 0: Board -->
+    <div class="node level-0">
+      <div class="node-box">
+        <div class="node-title">Junta Directiva de HMC</div>
+        <div class="node-sub">Board of Directors — Harvard Management Company</div>
+      </div>
+      <div class="tooltip">Supervisa la gestion del endowment. Conformada por miembros de Harvard Corporation y directores independientes. Aprueba la politica de inversion y la asignacion estrategica de activos.</div>
+    </div>
+
+    <div class="connector-v crimson" style="height:32px;"></div>
+    <div class="section-label">Direccion Ejecutiva</div>
+    <div class="connector-v crimson" style="height:8px;"></div>
+
+    <!-- Nivel 1: CEO + Auditoria -->
+    <div style="display:flex; align-items:flex-start; gap:40px; justify-content:center;">
+      <div class="branch" style="margin-top:0;">
+        <div class="audit-line" style="height:88px; margin-top:0;"></div>
+        <div class="node level-gold">
+          <div class="node-box">
+            <div class="node-title">Auditoria Interna</div>
+            <div class="node-sub">Linea directa a la Junta</div>
+          </div>
+          <div class="tooltip">Reporte independiente a la Junta Directiva. Evalua controles internos, riesgos operativos y cumplimiento normativo de HMC. Garantiza integridad de la informacion financiera.</div>
+        </div>
+      </div>
+
+      <div class="branch">
+        <div class="node level-0" style="min-width:260px;">
+          <div class="node-box" style="min-width:260px;">
+            <div class="node-title">CEO / President</div>
+            <div class="node-sub">N.P. Narvekar — Chief Executive Officer</div>
+          </div>
+          <div class="tooltip">N.P. Narvekar lidera HMC desde 2016. Responsable de la estrategia global de inversion, la gestion del equipo y la relacion con la Universidad de Harvard. Reporta directamente a la Junta Directiva.</div>
+        </div>
+
+        <div class="connector-v crimson" style="height:28px;"></div>
+
+        <!-- Nivel 1: CIO -->
+        <div class="node level-1">
+          <div class="node-box">
+            <div class="node-title">CIO — Chief Investment Officer</div>
+            <div class="node-sub">Estrategia y gestion del portafolio</div>
+          </div>
+          <div class="tooltip">Define la estrategia de asignacion de activos del endowment. Supervisa todos los equipos de inversion por clase de activo. Trabaja con gestores externos e internos.</div>
+        </div>
+
+        <div class="connector-v" style="height:28px;"></div>
+
+        <!-- Row equipos inversion -->
+        <div class="section-label">Equipos de Inversion por Clase de Activo</div>
+        <div class="connector-v" style="height:8px;"></div>
+
+        <div style="position:relative; width:100%;">
+          <div class="horizontal-line crimson" style="width:90%; height:2px; margin: 0 auto;"></div>
+          <div class="row" style="margin-top:0;">
+            <div class="row-item">
+              <div class="connector-v" style="height:20px;"></div>
+              <div class="node level-2">
+                <div class="node-box">
+                  <div class="node-title">Public Equity</div>
+                  <div class="node-sub">Acciones publicas globales</div>
+                </div>
+                <div class="tooltip">Gestion de inversiones en mercados accionarios globales, tanto desarrollados como emergentes. Se apoya en gestores externos altamente seleccionados.</div>
+              </div>
+            </div>
+            <div class="row-item">
+              <div class="connector-v" style="height:20px;"></div>
+              <div class="node level-2">
+                <div class="node-box">
+                  <div class="node-title">Private Equity</div>
+                  <div class="node-sub">Capital privado y venture</div>
+                </div>
+                <div class="tooltip">Inversiones en fondos de capital privado (buyout) y capital de riesgo (venture capital). Esta clase de activo representa una proporcion significativa del portafolio.</div>
+              </div>
+            </div>
+            <div class="row-item">
+              <div class="connector-v" style="height:20px;"></div>
+              <div class="node level-2">
+                <div class="node-box">
+                  <div class="node-title">Real Assets</div>
+                  <div class="node-sub">Bienes raices y recursos naturales</div>
+                </div>
+                <div class="tooltip">Incluye inversiones en bienes raices, infraestructura, madera (timberland) y recursos naturales. Proveen proteccion contra la inflacion y retornos a largo plazo.</div>
+              </div>
+            </div>
+            <div class="row-item">
+              <div class="connector-v" style="height:20px;"></div>
+              <div class="node level-2">
+                <div class="node-box">
+                  <div class="node-title">Hedge Funds</div>
+                  <div class="node-sub">Estrategias absolutas</div>
+                </div>
+                <div class="tooltip">Portafolio de fondos alternativos con estrategias long/short, macro global y arbitraje. Aportan diversificacion y retornos no correlacionados con el mercado.</div>
+              </div>
+            </div>
+            <div class="row-item">
+              <div class="connector-v" style="height:20px;"></div>
+              <div class="node level-2">
+                <div class="node-box">
+                  <div class="node-title">Fixed Income</div>
+                  <div class="node-sub">Renta fija y bonos</div>
+                </div>
+                <div class="tooltip">Incluye bonos del gobierno, credito corporativo y TIPS. Cumple un rol de estabilidad y liquidez dentro del portafolio general del endowment.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector-v" style="height:36px;"></div>
+    <div class="section-label">Areas de Soporte Estrategico</div>
+    <div class="connector-v" style="height:8px;"></div>
+
+    <!-- Nivel soporte -->
+    <div style="position:relative; width:95%;">
+      <div class="horizontal-line" style="width:80%; margin:0 auto;"></div>
+      <div class="row">
+        <div class="row-item">
+          <div class="connector-v" style="height:20px;"></div>
+          <div class="node level-gold">
+            <div class="node-box">
+              <div class="node-title">Risk Management</div>
+              <div class="node-sub">Gestion integral de riesgos</div>
+            </div>
+            <div class="tooltip">Identifica, mide y monitorea los riesgos de mercado, liquidez, credito y operativos del portafolio total. Define los limites de exposicion por clase de activo.</div>
+          </div>
+        </div>
+        <div class="row-item">
+          <div class="connector-v" style="height:20px;"></div>
+          <div class="node level-gold">
+            <div class="node-box">
+              <div class="node-title">Legal y Cumplimiento</div>
+              <div class="node-sub">Compliance y regulacion</div>
+            </div>
+            <div class="tooltip">Asegura el cumplimiento de las regulaciones aplicables a HMC como entidad sin animo de lucro. Gestiona contratos con gestores externos y la estructura legal de las inversiones.</div>
+          </div>
+        </div>
+        <div class="row-item">
+          <div class="connector-v" style="height:20px;"></div>
+          <div class="node level-gold">
+            <div class="node-box">
+              <div class="node-title">Finanzas y Contabilidad</div>
+              <div class="node-sub">Reportes y estados financieros</div>
+            </div>
+            <div class="tooltip">Elabora los estados financieros anuales del endowment, gestiona la distribucion anual a la Universidad de Harvard y realiza el seguimiento del presupuesto de HMC.</div>
+          </div>
+        </div>
+        <div class="row-item">
+          <div class="connector-v" style="height:20px;"></div>
+          <div class="node level-gold">
+            <div class="node-box">
+              <div class="node-title">Tecnologia e Infraestructura</div>
+              <div class="node-sub">Sistemas y datos</div>
+            </div>
+            <div class="tooltip">Gestiona los sistemas de informacion, plataformas de analisis de datos y la infraestructura tecnologica que soporta las decisiones de inversion y las operaciones diarias.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot crimson"></div>
+      Organos de Gobierno y Direccion
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot white"></div>
+      Gestion de Inversiones
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot parchment"></div>
+      Equipos por Clase de Activo
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot gold"></div>
+      Areas de Soporte Estrategico
+    </div>
+  </div>
+
+  <!-- Source -->
+  <div class="source-note">
+    Fuentes oficiales: 
+    <a href="https://www.hmc.harvard.edu" target="_blank">Harvard Management Company (hmc.harvard.edu)</a> &mdash; 
+    <a href="https://finance.harvard.edu/faq/who-manages-harvards-endowment" target="_blank">Harvard Financial Administration</a> &mdash; 
+    Reporte Anual HMC 2024.
+    <br>Pasa el cursor sobre cada area para ver su descripcion funcional.
+  </div>
+
+</div>
+</body>
+</html>
