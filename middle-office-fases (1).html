@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Middle Office · plan de trabajo por fases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ECEFEE;
+    --card:#F7F9F8;
+    --ink:#10262F;
+    --ink-soft:#44585F;
+    --rule:#C3CFCC;
+    --rule-soft:#DAE2E0;
+    --done:#2C6E63;
+    --live:#A9720F;
+    --deep:#0D2029;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.5;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+  h1,h2,h3,.sans,button{font-family:Archivo,"Helvetica Neue",Arial,sans-serif}
+
+  h1{font-size:clamp(26px,4vw,38px);font-weight:700;letter-spacing:-.02em;margin:0 0 10px;line-height:1.08}
+  .lead{margin:0;max-width:64ch;color:var(--ink-soft);font-size:16.5px}
+
+  /* pestañas */
+  .tabs{display:flex;gap:2px;margin:30px 0 0;border-bottom:1.5px solid var(--ink)}
+  .tabs button{
+    appearance:none;border:1.5px solid var(--rule);border-bottom:none;background:transparent;
+    color:var(--ink-soft);font-size:14.5px;font-weight:500;padding:11px 20px;cursor:pointer;
+    border-radius:3px 3px 0 0;margin-bottom:-1.5px;
+  }
+  .tabs button:hover{color:var(--ink)}
+  .tabs button[aria-selected="true"]{
+    background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600;
+  }
+  .tabs button:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+  .panel{display:none;padding-top:34px}
+  .panel.on{display:block}
+
+  /* diagrama de fases: columnas paralelas */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1.5px solid var(--ink)}
+  .col{border-left:1px solid var(--rule);padding:0 22px}
+  .col:first-child{border-left:none;padding-left:0}
+  .col:last-child{padding-right:0}
+  .col .head{padding:16px 0 15px}
+  .col .head .n{font-family:Archivo,sans-serif;font-size:12.5px;font-weight:600;color:var(--live)}
+  .col .head .t{font-family:Archivo,sans-serif;font-size:18px;font-weight:600;letter-spacing:-.012em;line-height:1.15;margin-top:3px}
+  .col .head p{margin:7px 0 0;font-size:14px;line-height:1.4;color:var(--ink-soft)}
+  .blk{border-top:1px solid var(--rule-soft);padding:15px 0}
+  .blk:last-child{padding-bottom:4px}
+  .blk h4{font-family:Archivo,sans-serif;font-size:13.6px;font-weight:600;margin:0 0 9px;line-height:1.25}
+  .blk h4 span{display:block;font-weight:400;font-size:12.2px;color:var(--ink-soft);margin-top:2px}
+  .blk ul{margin:0;padding:0;list-style:none}
+  .blk li{font-size:14.2px;line-height:1.42;margin-bottom:8px;padding-left:14px;position:relative;color:#1d3942}
+  .blk li:last-child{margin-bottom:0}
+  .blk li::before{content:"";position:absolute;left:0;top:.52em;width:6px;height:6px;border-radius:50%;background:var(--done)}
+  .blk li.curso::before{background:var(--paper);border:1.5px solid var(--live);top:.46em}
+  .blk li b{font-weight:600;color:var(--ink)}
+  .blk li em{font-style:normal;font-family:Archivo,sans-serif;font-size:11.5px;color:var(--live);font-weight:500}
+  .legend{margin-top:16px;font-size:13.4px;color:var(--ink-soft);display:flex;gap:22px;flex-wrap:wrap}
+  .legend i{width:8px;height:8px;border-radius:50%;background:var(--done);display:inline-block;margin-right:7px}
+  .legend i.o{background:transparent;border:1.5px solid var(--live)}
+
+  /* nota de coordinación */
+  .note{margin-top:42px;border:1px solid var(--rule);background:var(--card);padding:24px 26px}
+  .note h3{margin:0 0 4px;font-size:16px;font-weight:600}
+  .note p.sub{margin:0 0 18px;font-size:14.2px;color:var(--ink-soft)}
+  .note .cols{display:grid;grid-template-columns:1.25fr 1fr;gap:30px}
+  .chan div{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--rule-soft);font-size:14.2px}
+  .chan div:first-child{border-top:none;padding-top:0}
+  .chan b{font-family:Archivo,sans-serif;font-weight:600;font-size:13.3px;min-width:8.8em}
+  .chan p{margin:0;color:var(--ink-soft)}
+  .rit h4{margin:0 0 8px;font-family:Archivo,sans-serif;font-size:13.3px;font-weight:600}
+  .rit ul{margin:0;padding:0;list-style:none;font-size:14.2px;color:var(--ink-soft)}
+  .rit li{margin-bottom:8px;padding-left:14px;position:relative}
+  .rit li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:1.5px;background:var(--ink)}
+
+  /* pendientes */
+  .pend{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  .pend h3.solo{margin-bottom:19px}
+  .pend h3{margin:0 0 3px;font-size:16px;font-weight:600}
+  .pend .sub{margin:0 0 16px;font-size:14px;color:var(--ink-soft);max-width:44ch}
+  .next{margin:0;padding:0;list-style:none;border-top:2px solid var(--live)}
+  .next li{position:relative;padding:13px 0 13px 18px;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.42}
+  .next li::before{content:"";position:absolute;left:0;top:1.3em;width:8px;height:8px;border:1.6px solid var(--live);border-radius:50%}
+  .next li small{display:block;color:var(--ink-soft);font-size:13.2px;margin-top:4px}
+  .queue{margin:0;padding:16px 0 0;list-style:none;display:flex;flex-wrap:wrap;gap:8px;border-top:2px solid var(--ink-soft)}
+  .queue li{font-family:Archivo,sans-serif;font-size:13.2px;color:#33464d;border:1px solid var(--rule);background:var(--card);padding:7px 11px}
+
+  /* preguntas */
+  .qs{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+  .q{background:var(--deep);color:#EAF1EF;padding:28px 26px;border-right:1px solid #24414A}
+  .q:last-child{border-right:none}
+  .q .num{font-family:Archivo,sans-serif;font-size:12px;font-weight:600;color:#C79A45}
+  .q p{margin:10px 0 0;font-size:17px;line-height:1.4}
+  .q small{display:block;margin-top:12px;color:#93A9AC;font-size:13.2px;line-height:1.45}
+  .qnote{margin-top:20px;font-size:14.2px;color:var(--ink-soft);max-width:70ch}
+
+  footer{margin-top:40px;font-family:Archivo,sans-serif;font-size:12.4px;color:var(--ink-soft)}
+
+  @media (max-width:900px){
+    .phases{grid-template-columns:1fr}
+    .col{border-left:none;padding:0;border-top:1px solid var(--rule)}
+    .col:first-child{border-top:none}
+    .note .cols,.pend,.qs{grid-template-columns:1fr;gap:24px}
+    .q{border-right:none;border-bottom:1px solid #24414A}
+    .tabs{overflow-x:auto}
+  }
+  @media print{
+    body{background:#fff}
+    .tabs{display:none}
+    .panel{display:block;padding-top:26px;break-before:page}
+    .panel:first-of-type{break-before:auto}
+    .q{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Middle Office: plan de trabajo por fases</h1>
+<p class="lead">Cómo se organizó el equipo durante el trabajo remoto, qué hizo cada frente en cada fase, qué está pendiente y qué decidimos en esta reunión.</p>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="t1" aria-controls="p1" aria-selected="true">Fases y responsables</button>
+  <button role="tab" id="t2" aria-controls="p2" aria-selected="false">Pendientes</button>
+  <button role="tab" id="t3" aria-controls="p3" aria-selected="false">Preguntas de cierre</button>
+</div>
+
+<!-- ===================== FASES ===================== -->
+<div class="panel on" id="p1" role="tabpanel" aria-labelledby="t1">
+
+  <div class="phases">
+
+    <div class="col">
+      <div class="head">
+        <div class="n">Fase 1</div>
+        <div class="t">Activación y ayudas</div>
+        <p>El equipo se vuelca a la gestión de ayudas y se habilitan las condiciones técnicas para trabajar remoto.</p>
+      </div>
+      <div class="blk">
+        <h4>Todo el equipo<span>Laboratorio Financiero</span></h4>
+        <ul>
+          <li><b>Gestión de ayudas</b> para la comunidad UTP y la comunidad en general</li>
+          <li>Aplicación de voluntariado para la Asociación de Egresados</li>
+          <li>Agente que automatiza la digitalización de los reportes de ayuda</li>
+          <li>Identificación de necesidades de la comunidad Faciem e integración al reporte de la Asociación, que centralizó las ayudas</li>
+          <li>Contacto con el personal para gestionar soluciones a sus necesidades</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Líder del Middle Office<span>Habilitación técnica</span></h4>
+        <ul>
+          <li><b>Conexión VPN del equipo base:</b> profesional del Middle, profesional especializada y practicante</li>
+          <li>Gestión de equipos en calidad de préstamo</li>
+          <li>Contratación de monitores para el apoyo a las actividades</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="head">
+        <div class="n">Fase 2</div>
+        <div class="t">Activación de actividades</div>
+        <p>Con el equipo conectado, se planean los frentes y se reactiva la operación propia del Middle Office.</p>
+      </div>
+      <div class="blk">
+        <h4>Líder y asesora<span>Planeación</span></h4>
+        <ul>
+          <li><b>Planeación de las actividades</b> en cada uno de los frentes del equipo</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Profesional del Middle Office<span>Operación</span></h4>
+        <ul>
+          <li>Apoyo a la gestión de ayudas</li>
+          <li><b>Reactivación de lo operativo:</b> valoración, proyección de flujos de caja del mes y control detallado de riesgos de las operaciones reportadas</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Practicante y monitores<span>Análisis</span></h4>
+        <ul>
+          <li>Orientación a la actualización del análisis de estados financieros, en conjunto con los monitores</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="head">
+        <div class="n">Fase 3</div>
+        <div class="t">Tracción del equipo</div>
+        <p>Cada frente avanza en paralelo: reporte, validaciones, metodología, tecnología y análisis de emisores.</p>
+      </div>
+      <div class="blk">
+        <h4>Líder y asesora<span>Planeación</span></h4>
+        <ul>
+          <li>Planeación de actividades y metas semanales por cada miembro del equipo</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Asesora<span>Dirección estratégica</span></h4>
+        <ul>
+          <li>Definición estratégica de las fases de tecnología y de las actividades que componen cada fase, tal como se presentaron al vicerrector</li>
+          <li>Validación de las propuestas de tecnología y de contratación</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Líder del Middle Office<span>Metodología y tecnología</span></h4>
+        <ul>
+          <li class="curso">Documentación de la metodología en USD <em>en curso</em></li>
+          <li class="curso">Propuesta para la contratación de tecnología y modelamiento <em>en curso</em></li>
+          <li>Gestión de la tecnología y los requerimientos para el funcionamiento del equipo</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Profesional del Middle Office<span>Reporte y valoración</span></h4>
+        <ul>
+          <li>Continuidad del informe al rector</li>
+          <li class="curso">Validación de títulos en IBR según la actualización de la metodología de valoración <em>en curso</em></li>
+          <li>Operación del día a día: valoración, proyección de flujos de caja y control detallado de riesgos</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h4>Practicante y monitores<span>Análisis de emisores, cierre a junio de 2026</span></h4>
+        <ul>
+          <li>Descarga y construcción de insumos: sector financiero de primer piso, intermediarios, Secretaría Distrital de Hacienda y emisores de servicios públicos</li>
+          <li class="curso">Análisis de los emisores del sector bancario de primer piso <em>en desarrollo</em></li>
+          <li>Plantilla para automatizar la construcción de insumos del análisis</li>
+          <li>Actualización de la guía de emisores y del working paper con notas por sector</li>
+          <li>Apoyo a la profesional en novedades de emisores y búsqueda de información para los informes</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <span><i></i>Entregado o en operación estable</span>
+    <span><i class="o"></i>En desarrollo hoy</span>
+  </div>
+
+  <div class="note">
+    <h3>Coordinación y reportes</h3>
+    <p class="sub">El trabajo remoto se sostiene en cuatro canales con propósitos distintos y en un ritmo fijo de reuniones.</p>
+    <div class="cols">
+      <div class="chan">
+        <div><b>Laboratorio general</b><p>Grupo activado para la gestión de ayudas.</p></div>
+        <div><b>Middle operacional</b><p>Avance diario de las actividades de cada miembro del área.</p></div>
+        <div><b>Equipo Middle Office</b><p>Condensado de las actividades del área.</p></div>
+        <div><b>Reporte al vicerrector</b><p>Diario: actividades del día, las de mañana y las de la semana.</p></div>
+      </div>
+      <div class="rit">
+        <h4>Ritmo de reuniones</h4>
+        <ul>
+          <li>Reuniones permanentes con la asesora para validar tecnología, contratación y planeación</li>
+          <li>Mínimo una reunión semanal para fijar las metas de cada miembro</li>
+          <li>Una reunión semanal con el equipo para entregar las metas y escuchar necesidades</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PENDIENTES ===================== -->
+<div class="panel" id="p2" role="tabpanel" aria-labelledby="t2">
+  <div class="pend">
+    <div>
+      <h3>En curso y próximo</h3>
+      <p class="sub">Compromisos con fecha cercana.</p>
+      <ul class="next">
+        <li>Definir con el equipo qué excedentes o aportes hay en los fondos, con su horizonte y las particularidades de la inversión
+          <small>Requiere información del tesorero. Con esto se activa la estrategia de generación de valor del Middle Office.</small></li>
+        <li>Terminar las validaciones de títulos</li>
+        <li>Terminar la metodología en USD</li>
+        <li>Tramitar la posible contratación de tecnología y de modelamiento</li>
+        <li>Continuar el análisis de emisores</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="solo">Pendientes por retomar de las áreas</h3>
+      <ul class="queue">
+        <li>Cambios en la resolución del CRF</li>
+        <li>Reunión con María Teresa</li>
+        <li>Administración del CRF</li>
+        <li>Diagnóstico de las notas a los estados financieros</li>
+        <li>DPI internacional</li>
+        <li>Valoración contable</li>
+        <li>Optimización del portafolio</li>
+        <li>TOPSIS</li>
+        <li>Automatización de novedades con procesamiento de lenguaje natural</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PREGUNTAS ===================== -->
+<div class="panel" id="p3" role="tabpanel" aria-labelledby="t3">
+  <div class="qs">
+    <div class="q">
+      <div class="num">Pregunta 1</div>
+      <p>¿Están de acuerdo con la metodología de trabajo y con seguir en estos frentes?</p>
+    </div>
+    <div class="q">
+      <div class="num">Pregunta 2</div>
+      <p>Antes del sismo habíamos activado una conversación con Refinitiv y tenemos el presupuesto. ¿Es el momento de activar el tema?</p>
+    </div>
+    <div class="q">
+      <div class="num">Pregunta 3</div>
+      <p>¿Posponemos las visitas del Middle Office y la formación del CRF, y dejamos la decisión por acta?</p>
+    </div>
+  </div>
+  <p class="qnote">Las respuestas a estas tres preguntas definen el alcance del trabajo de las próximas semanas y el orden de la lista por priorizar.</p>
+</div>
+
+<footer>Middle Office, Laboratorio Financiero UTP. Corte al 15 de septiembre de 2026.</footer>
+
+</div>
+<script>
+  var tabs = document.querySelectorAll('.tabs button');
+  tabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      tabs.forEach(function(b){
+        b.setAttribute('aria-selected','false');
+        document.getElementById(b.getAttribute('aria-controls')).classList.remove('on');
+      });
+      btn.setAttribute('aria-selected','true');
+      document.getElementById(btn.getAttribute('aria-controls')).classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>
